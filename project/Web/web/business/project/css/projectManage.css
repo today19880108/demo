@@ -1,0 +1,12 @@
+.ui-datepicker select.ui-datepicker-month, .ui-datepicker select.ui-datepicker-year{
+	width: 44%;
+}
+/*zTree*/
+/*style.css中添加会影响菜单栏*/
+ul.ztree {
+	border: 1px solid #D4D4D4;
+	background: #fff;
+	overflow-y:scroll;
+	overflow-x:auto;
+}
+/*zTree*/

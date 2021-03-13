@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="base_menu">
+	<!-- 获得菜单列表查询条件 -->
+	<sql id="sql_where" > 
+		<dynamic prepend="where">
+	   		<isNotEmpty prepend="and" property="PID"> 
+	        	A.PID = #PID#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="NAME"> 
+	        	A.NAME like '%$NAME$%'
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="PATH"> 
+	        	A.PATH like '%$PATH$%'
+	        </isNotEmpty> 
+		</dynamic>
+	</sql>
+	
+	<!-- 获得菜单列表 -->
+	<select id="getMenuList" resultClass="java.util.HashMap" parameterClass="com.frame.base.menu.model.MenuInfo">
+		SELECT A.* FROM(
+			SELECT T.ID,
+			       T.PID,
+			       P.NAME AS PID_NAME,
+			       T.NAME,
+			       T.PATH,
+			       T.REMARK,
+			       T.ORD,
+			       T.ADD_TIME
+			  FROM MENU_INFO T, MENU_INFO P
+			 WHERE T.PID = P.ID(+)
+			) A
+		   <include refid="sql_where"/>
+		   ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获得菜单列表总数 -->
+	<select id="getMenuListCount" resultClass="int" parameterClass="com.frame.base.menu.model.MenuInfo">
+		SELECT COUNT(1) FROM(
+			SELECT T.ID,
+			       T.PID,
+			       P.NAME AS PID_NAME,
+			       T.NAME,
+			       T.PATH,
+			       T.REMARK,
+			       T.ORD,
+			       T.ADD_TIME
+			  FROM MENU_INFO T, MENU_INFO P
+			 WHERE T.PID = P.ID(+)
+			) A
+		   <include refid="sql_where"/>
+    </select>
+    
+    <!-- 插入菜单 -->
+    <statement id="insertMenu" parameterClass="com.frame.base.menu.model.MenuInfo">  
+        INSERT INTO MENU_INFO
+		  (ID, PID, NAME, PATH, REMARK, ORD, ADD_TIME)
+		VALUES
+		  (#ID#, #PID2#, #NAME#, #PATH#, #REMARK#, #ORD#, SYSDATE)
+    </statement> 
+    
+    <!-- 修改菜单 -->
+    <statement id="updateMenu" parameterClass="com.frame.base.menu.model.MenuInfo">  
+        UPDATE MENU_INFO T
+		   SET T.PID = #PID2#, 
+		   	   T.NAME = #NAME#, 
+		   	   T.PATH = #PATH#, 
+		   	   T.REMARK = #REMARK#, 
+		   	   T.ORD = #ORD#
+		 WHERE T.ID = #ID#
+    </statement> 
+    
+    <!-- 根据ID查询菜单信息 -->
+	<select id="getMenuUserById" resultClass="com.frame.base.menu.model.MenuInfo" parameterClass="java.util.HashMap">
+		SELECT T.ID,
+		       T.PID,
+		       P.NAME AS PID_NAME,
+		       T.NAME,
+		       T.PATH,
+		       T.REMARK,
+		       T.ORD,
+		       T.ADD_TIME
+		  FROM MENU_INFO T, MENU_INFO P
+		 WHERE T.PID = P.ID(+)
+		   AND T.ID = #ID#
+    </select>
+    
+    <!-- 删除菜单-->
+    <statement id="delMenu" parameterClass="java.util.HashMap">  
+        DELETE FROM MENU_INFO T WHERE T.ID = #ID#
+    </statement>
+</sqlMap>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="business_analyse">
+    <!-- 获得年总投资额数据列表 -->
+    <select id="getYearAnalyseData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT T2.INVESTMENTTIME,
+		       /*NVL(SUM(T2.PLANINVEST),0) AS PLANINVEST,*/
+		       NVL(SUM(T2.ACTUALINVEST),0) AS ACTUALINVEST
+		  FROM PROJECT T, (SELECT P.PROJECTID, P.ACTUALINVEST, to_char(P.INVESTMENTTIME,'yyyy') as INVESTMENTTIME FROM INVESTMENT P) T2
+		 WHERE T.PROJECTID = T2.PROJECTID
+		   AND T2.INVESTMENTTIME >= #year_s#
+		   AND T2.INVESTMENTTIME &lt;= #year_e#
+		 GROUP BY T2.INVESTMENTTIME
+		 ORDER BY T2.INVESTMENTTIME
+    </select>
+    
+    <!-- 获得项目类型投资数据列表 -->
+    <select id="getProjectTypeAnalyseData" resultClass="java.util.HashMap">
+    	SELECT A.PROJECTTYPE,
+    		   NVL(SUM(A.ACTUALINVEST),0) AS ACTUALINVEST
+          FROM (SELECT (SELECT P.ID
+						  FROM PROJECTTYPE P
+						 WHERE P.PID = '0'
+						 START WITH P.ID = T.PROJECTTYPE
+					   CONNECT BY PRIOR P.PID = P.ID) AS PROJECTTYPE,
+				       T2.ACTUALINVEST
+				  FROM PROJECT T, INVESTMENT T2
+				 WHERE T.PROJECTID = T2.PROJECTID) A
+		 GROUP BY A.PROJECTTYPE
+    </select>
+    
+    <!-- 获得年度项目类型投资数据列表 -->
+    <select id="getYearProjectTypeAnalyseData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT A.PROJECTTYPE,
+    	       A.INVESTMENTTIME,
+    		   NVL(SUM(A.ACTUALINVEST),0) AS ACTUALINVEST
+	      FROM (SELECT (SELECT P.ID
+						  FROM PROJECTTYPE P
+						 WHERE P.PID = '0'
+						 START WITH P.ID = T.PROJECTTYPE
+					   CONNECT BY PRIOR P.PID = P.ID) AS PROJECTTYPE, 
+					   T2.INVESTMENTTIME,
+					   T2.ACTUALINVEST
+				  FROM PROJECT T, (SELECT P.PROJECTID, P.ACTUALINVEST, to_char(P.INVESTMENTTIME,'yyyy') as INVESTMENTTIME FROM INVESTMENT P) T2
+				 WHERE T.PROJECTID = T2.PROJECTID
+				   AND T2.INVESTMENTTIME >= #year_s#
+				   AND T2.INVESTMENTTIME &lt;= #year_e#) A
+		 GROUP BY A.PROJECTTYPE, A.INVESTMENTTIME
+    </select>
+    
+    <!-- 根据ID获得资金来源投资数据列表 -->
+    <select id="getZJAnalyseDataById" resultClass="java.util.HashMap">
+		SELECT T3.NAME AS FUNDING_NAME,
+		       T3.ID AS FUNDING_ID,
+		       /*NVL(SUM(T2.PLANINVEST),0) AS PLANINVEST,*/
+		       NVL(SUM(T2.ACTUALINVEST),0) AS ACTUALINVEST
+		  FROM PROJECT T,
+		       INVESTMENT T2,
+		       (SELECT * FROM CODE_ALL P WHERE P.TYPE = '5') T3
+		 WHERE T.PROJECTID = T2.PROJECTID
+		   AND T2.FUNDING = T3.ID
+		   AND T.PROJECTID = #PROJECTID#
+		 GROUP BY T3.NAME, T3.ID, T3.ORD
+		 ORDER BY T3.ORD
+    </select>
+    
+    <!-- 根据ID获得年度投资数据列表-->
+    <select id="getNFXAnalyseDataById" resultClass="java.util.HashMap">
+		SELECT T2.INVESTMENTTIME,
+		       /*NVL(SUM(T2.PLANINVEST),0) AS PLANINVEST,*/
+		       NVL(SUM(T2.ACTUALINVEST),0) AS ACTUALINVEST
+		  FROM PROJECT T, (SELECT P.PROJECTID, P.ACTUALINVEST, to_char(P.INVESTMENTTIME,'yyyy') as INVESTMENTTIME FROM INVESTMENT P) T2
+		 WHERE T.PROJECTID = T2.PROJECTID
+		   AND T.PROJECTID = #PROJECTID#
+		   AND T2.INVESTMENTTIME IS NOT NULL
+		 GROUP BY T2.INVESTMENTTIME
+		 ORDER BY T2.INVESTMENTTIME	
+    </select>
+</sqlMap>

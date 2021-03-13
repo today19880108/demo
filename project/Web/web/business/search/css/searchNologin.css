@@ -1,0 +1,36 @@
+.noLoginSearchLeftTree{
+	float: left;
+	width: 170px;
+	height: 300px;
+	padding: 0px 0 0 2px;
+}
+
+.leftTreeNum{
+	float: left;
+	width: 132px;
+	height: 120px;
+	padding: 10px 25px 10px 23px;
+	cursor: pointer;
+}
+
+.leftTreeNum:hover .leftTreeNumImg{
+	width: 100px;
+	border: solid 1px #eee;
+} 
+
+.leftTreeNum .leftTreeNumImgP{
+	padding: 5px 17px 3px 17px;
+}
+
+.leftTreeNum .leftTreeNumImg{
+	width: 98px;
+}
+
+.leftTreeNum .leftTreeNumTitle{
+	text-align: center;
+	font-size: 16px;
+}
+
+.selectBorder{
+	border: solid 1px #eee;
+}

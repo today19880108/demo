@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="base_user">
+	<!-- 获得用户列表查询条件 -->
+	<sql id="sql_where" > 
+		<dynamic prepend="where">
+	   		<isNotEmpty prepend="and" property="USER_NAME"> 
+	        	A.USER_NAME like '%$USER_NAME$%'
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="DEPT"> 
+	        	A.DEPT=#DEPT#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="USER_CODE"> 
+	        	A.USER_CODE=#USER_CODE#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="TEL"> 
+	        	A.TEL=#TEL#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="ISUSER"> 
+	        	A.ISUSER=#ISUSER#
+	        </isNotEmpty> 
+		</dynamic>
+	</sql>
+	
+	<!-- 获得用户列表 -->
+	<select id="getUserList" resultClass="java.util.HashMap" parameterClass="com.frame.base.user.model.UserInfo">
+		SELECT A.* FROM(
+			SELECT T.USER_ID,
+			       T.USER_NAME,
+			       T.USER_LOGIN,
+			       T.DEPT,
+			       A.NAME AS DEPT_NAME,
+			       T.USER_CODE,
+			       T.SEX,
+			       B.NAME AS SEX_NAME,
+			       T.AGE,
+			       T.TEL,
+			       T.EMAIL,
+			       T.REMARK,
+			       T.SHOW_ORDER,
+			       T.ISUSER,
+			       C.NAME AS ISUSER_NAME,
+			       T.ADD_TIME
+			  FROM USER_INFO T,
+			       USER_DEPT A,
+			       (SELECT P.ID, P.NAME FROM CODE_ALL P WHERE P.TYPE = '2') B,
+			       (SELECT P.ID, P.NAME FROM CODE_ALL P WHERE P.TYPE = '1') C
+			 WHERE T.DEPT = A.ID(+)
+			   AND T.SEX = B.ID(+)
+			   AND T.ISUSER = C.ID(+)) A
+		   <include refid="sql_where"/>
+		   ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获得用户列表总数 -->
+	<select id="getUserListCount" resultClass="int" parameterClass="com.frame.base.user.model.UserInfo">
+		SELECT COUNT(1) FROM(
+			SELECT T.USER_ID,
+			       T.USER_NAME,
+			       T.USER_LOGIN,
+			       T.DEPT,
+			       A.NAME AS DEPT_NAME,
+			       T.USER_CODE,
+			       T.SEX,
+			       B.NAME AS SEX_NAME,
+			       T.AGE,
+			       T.TEL,
+			       T.EMAIL,
+			       T.REMARK,
+			       T.SHOW_ORDER,
+			       T.ISUSER,
+			       C.NAME,
+			       T.ADD_TIME
+			  FROM USER_INFO T,
+			       USER_DEPT A,
+			       (SELECT P.ID, P.NAME FROM CODE_ALL P WHERE P.TYPE = '2') B,
+			       (SELECT P.ID, P.NAME FROM CODE_ALL P WHERE P.TYPE = '1') C
+			 WHERE T.DEPT = A.ID(+)
+			   AND T.SEX = B.ID(+)
+			   AND T.ISUSER = C.ID(+)) A
+		   <include refid="sql_where"/>
+    </select>
+    
+    <!-- 根据ID获得用户对象 -->
+	<select id="getUserById" resultClass="com.frame.base.user.model.UserInfo" parameterClass="java.util.HashMap">
+		SELECT T.USER_ID,
+		       T.USER_NAME,
+		       T.USER_LOGIN,
+		       T.DEPT,
+		       A.NAME AS DEPT_NAME,
+		       T.USER_CODE,
+		       T.SEX,
+		       T.AGE,
+		       T.TEL,
+		       T.EMAIL,
+		       T.REMARK,
+		       T.SHOW_ORDER,
+		       T.ISUSER
+		  FROM USER_INFO T,
+		  	   USER_DEPT A
+		 WHERE T.DEPT = A.ID(+)
+		   AND T.USER_ID = #USER_ID#
+    </select>
+    
+    <!-- 查询登录名唯一性 -->
+	<select id="searchUserOnly" resultClass="int" parameterClass="com.frame.base.user.model.UserInfo">
+		SELECT COUNT(1) 
+		  FROM USER_INFO T 
+		 WHERE T.USER_LOGIN=#USER_LOGIN# 
+		 <isNotEmpty prepend="and" property="USER_ID"> 
+    	 	T.USER_ID!=#USER_ID#
+         </isNotEmpty> 
+    </select>
+    
+    <!-- 插入用户 -->
+    <statement id="insertUser" parameterClass="com.frame.base.user.model.UserInfo">  
+        INSERT INTO USER_INFO
+			  (USER_ID,
+			   USER_NAME,
+			   USER_LOGIN,
+			   USER_PWD,
+			   DEPT,
+			   USER_CODE,
+			   SEX,
+			   AGE,
+			   TEL,
+			   EMAIL,
+			   REMARK,
+			   SHOW_ORDER,
+			   ISUSER,
+			   ADD_TIME) 
+		VALUES
+			  (#USER_ID#,
+			   #USER_NAME#,
+			   #USER_LOGIN#,
+			   #USER_PWD#,
+			   #DEPT2#,
+			   #USER_CODE#,
+			   #SEX#,
+			   #AGE#,
+			   #TEL#,
+			   #EMAIL#,
+			   #REMARK#,
+			   #SHOW_ORDER#,
+			   #ISUSER#,
+			   SYSDATE)
+    </statement> 
+    
+    <!-- 修改用户 -->
+    <statement id="updateUser" parameterClass="com.frame.base.user.model.UserInfo">  
+        UPDATE USER_INFO T
+		   SET T.USER_NAME = #USER_NAME#,
+		       T.USER_LOGIN = #USER_LOGIN#,
+		       T.DEPT = #DEPT2#,
+		       T.USER_CODE = #USER_CODE#,
+		       T.SEX = #SEX#,
+		       T.AGE = #AGE#,
+		       T.TEL = #TEL#,
+		       T.EMAIL = #EMAIL#,
+		       T.REMARK = #REMARK#,
+		       T.SHOW_ORDER = #SHOW_ORDER#,
+		       T.ISUSER = #ISUSER#
+		 WHERE T.USER_ID = #USER_ID#
+    </statement> 
+    
+    <!-- 删除用户 -->
+    <statement id="delUser" parameterClass="java.util.HashMap">  
+        DELETE FROM USER_INFO T WHERE T.USER_ID = #USER_ID#
+    </statement> 
+    
+    <!-- 获得用户分配角色列表 -->
+	<select id="getRoleListByUserID" resultClass="java.util.HashMap" parameterClass="com.frame.base.user.model.UserInfo">
+		SELECT A.* FROM(
+			SELECT T.ID, 
+				   T.NAME, 
+				   T.REMARK, 
+				   T.ORD, 
+				   T.ADD_TIME 
+			FROM ROLE_INFO T,(SELECT P.ROLE_ID FROM USER_2_ROLE P WHERE P.USER_ID=#USER_ID#) T2
+		   WHERE T.ID=T2.ROLE_ID) A
+		   ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获得用户分配角色列表总数 -->
+	<select id="getRoleListByUserIDCount" resultClass="int" parameterClass="com.frame.base.user.model.UserInfo">
+		SELECT COUNT(1) FROM(
+			SELECT T.ID, 
+				   T.NAME, 
+				   T.REMARK, 
+				   T.ORD, 
+				   T.ADD_TIME 
+			FROM ROLE_INFO T,(SELECT P.ROLE_ID FROM USER_2_ROLE P WHERE P.USER_ID=#USER_ID#) T2
+		   WHERE T.ID=T2.ROLE_ID) A
+    </select>
+    
+    <!-- 插入用户分配角色 -->
+    <statement id="insertRole2User" parameterClass="java.util.HashMap">  
+        INSERT INTO USER_2_ROLE(USER_ID, ROLE_ID) VALUES(#USER_ID#, #ROLE_ID#)
+    </statement> 
+    
+    <!-- 删除用户分配角色 -->
+    <statement id="delRole2User" parameterClass="java.util.HashMap">  
+        DELETE FROM USER_2_ROLE T WHERE T.USER_ID = #USER_ID# AND T.ROLE_ID = #ROLE_ID#
+    </statement>
+</sqlMap>

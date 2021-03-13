@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="business">
+	<sql id="sql_stage_where"> 
+   		<dynamic prepend=" where ">
+   			<isNotEmpty prepend="and" property="stage"> 
+            	stage = #stage#
+            </isNotEmpty> 
+            <isNotEmpty prepend="and" property="responsibleperson"> 
+            	responsibleperson like '%$responsibleperson$%' 
+            </isNotEmpty> 
+            <isNotEmpty prepend="and" property="starttime">
+            	starttime=#starttime# 
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="endtime">
+            	endtime like '%$endtime$%'
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="stagesummary">
+            	stagesummary=#stagesummary#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="remarks">
+            	remarks=#remarks#
+            </isNotEmpty>
+            projectid=#projectid#
+   		</dynamic>
+	</sql>
+	
+	<!--查询项目阶段 -->
+	<select id="queryProjecstagetList" parameterClass="com.frame.business.projectstage.model.Projectstage" resultClass="java.util.HashMap">
+       	select stageid, (SELECT a.NAME FROM CODE_ALL a WHERE a.TYPE='7' AND a.ID=stage) AS stage,
+			   t.responsibleperson,
+			   t.projectid,
+			   to_char(t.starttime, 'yyyy-mm-dd') as starttime,
+			   to_char(t.endtime, 'yyyy-mm-dd') as endtime,
+		       stagesummary,remarks
+		  from projectstage t
+     	 <include refid="sql_stage_where"/> 
+     	 order by $sidx$ $sord$
+	</select>
+	
+	<!-- 查询项目阶段总数 -->
+	<select id="queryProjectstageCount" parameterClass="com.frame.business.projectstage.model.Projectstage" resultClass="int">
+    	select count(1) from projectstage  
+     	<include refid="sql_stage_where"/>
+	</select>
+	
+	<!--查询项目阶段详情 -->
+	<select id="queryProjectstageDetail" parameterClass="java.util.HashMap"
+		resultClass="com.frame.business.projectstage.model.Projectstage">
+        <![CDATA[
+        select stage,
+      		   stageid,projectid,
+			   t.responsibleperson,
+		       to_char(t.starttime, 'yyyy-mm-dd') as starttime,
+		       to_char(t.endtime, 'yyyy-mm-dd') as endtime,
+		       stagesummary,remarks
+		  from projectstage t
+       	 where t.stageid=#id#  
+  		]]>
+	</select>
+	
+    <!-- 插入项目阶段记录 -->
+	<insert id="insertProjectstage" parameterClass="com.frame.business.projectstage.model.Projectstage">
+		<![CDATA[   
+		insert into projectstage
+		(
+		stageid,projectid,addtime
+		]]>
+		<dynamic prepend=",">
+			<isNotEmpty property="stage" prepend=",">stage
+			</isNotEmpty>
+			<isNotEmpty property="responsibleperson" prepend=",">responsibleperson
+			</isNotEmpty>
+			<isNotEmpty property="starttime" prepend=",">starttime
+			</isNotEmpty>
+			<isNotEmpty property="endtime" prepend=",">endtime
+			</isNotEmpty>
+			<isNotEmpty property="stagesummary" prepend=",">stagesummary
+			</isNotEmpty>
+			<isNotEmpty property="remarks" prepend=",">remarks
+			</isNotEmpty>
+		</dynamic>
+		)
+		values
+		(
+		#stageid#,#projectid#,sysdate
+		<dynamic prepend=",">
+			<isNotEmpty property="stage" prepend=",">#stage#
+			</isNotEmpty>
+			<isNotEmpty property="responsibleperson" prepend=",">#responsibleperson#
+			</isNotEmpty>
+			<isNotEmpty property="starttime" prepend=",">to_date(#starttime#, 'yyyy-mm-dd')
+			</isNotEmpty>
+			<isNotEmpty property="endtime" prepend=",">to_date(#endtime#, 'yyyy-mm-dd')
+			</isNotEmpty>
+			<isNotEmpty property="stagesummary" prepend=",">#stagesummary#
+			</isNotEmpty>
+			<isNotEmpty property="remarks" prepend=",">#remarks#
+			</isNotEmpty>
+		</dynamic>
+		)
+	</insert>
+   
+	<!-- 修改项目阶段 -->
+    <update id="updateProjectstage" parameterClass="com.frame.business.projectstage.model.Projectstage">
+		update projectstage set 
+            	stage=#stage#,
+            	responsibleperson = #responsibleperson#,
+            	starttime=to_date(#starttime#, 'yyyy-mm-dd'),
+            	endtime=to_date(#endtime#, 'yyyy-mm-dd'),
+            	stagesummary=#stagesummary#,
+            	remarks=#remarks#
+      where stageid=#stageid#
+	</update>
+     
+	<!-- 删除项目 -->
+    <statement id="delProjectstage" parameterClass="java.util.HashMap">  
+        DELETE FROM projectstage T WHERE T.stageid = #id#
+    </statement> 
+    
+</sqlMap>

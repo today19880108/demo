@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="department">
+		
+	<sql id="sql_where" > 
+   		<dynamic prepend="where">
+   			<isNotEmpty prepend="and" property="id"> 
+            	id = #id#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="pid"> 
+            	pid = #pid#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="ord"> 
+            	ord = #ord#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="name"> 
+            	name like '%$name$%'
+            </isNotEmpty>  
+   		</dynamic>
+	</sql>
+    
+    <!-- 新增部门 -->
+    <statement id="insertDepart" parameterClass="com.frame.base.department.model.Department">  
+        insert into  user_dept t
+		  (id, pid, name, remark, ord)
+		VALUES
+		  (#id#, #pid#, #name#,  #remark#, #ord#)
+    </statement>
+	
+	<!-- 保存部门修改 -->
+    <statement id="updateDepart" parameterClass="com.frame.base.department.model.Department">  
+    	UPDATE user_dept t
+		   SET name = #name#,
+               remark = #remark#,
+               pid = #pid#,
+               ord = #ord#
+		 WHERE id= #id#
+    </statement> 
+    
+    <!-- 删除部门 -->
+    <statement id="delDepart" parameterClass="java.util.HashMap">  
+    	delete user_dept t where t.id=#id#
+    </statement>
+    
+    <!-- 获取部门列表 -->
+    <select id="getDepartList" resultClass="java.util.HashMap" parameterClass="com.frame.base.department.model.Department">
+	 	select A.* from(
+		 	select t.id, t.pid,
+			case when t.pid is not null
+			then (select a.name from user_dept a where a.id=t.pid) end as PID_NAME	
+			, t.name, t.ord, t.remark from user_dept t) A
+	    <include refid="sql_where"/>
+	    ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获取部门列表数量 -->
+    <select id="getDepartListCount" resultClass="int" parameterClass="com.frame.base.department.model.Department">
+		SELECT COUNT(1) FROM(
+			 select t.id, t.pid,
+			 t.name, t.ord, t.remark from user_dept t
+		     <include refid="sql_where"/>
+		)
+    </select>
+    
+    <select id="getDepartById" resultClass="com.frame.base.department.model.Department" parameterClass="java.util.HashMap">
+	 	select t.id, t.pid,
+		case when t.pid is not null
+		then (select a.name from user_dept a where a.id=t.pid) end as pid_name	
+		, t.name, t.ord, t.remark from user_dept t
+	    <include refid="sql_where"/>
+    </select>
+    
+</sqlMap>

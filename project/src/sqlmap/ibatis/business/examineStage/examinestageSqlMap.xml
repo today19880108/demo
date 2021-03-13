@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="business">
+	<!--查询审批阶段 -->
+	<select id="queryExaminestagetList" parameterClass="com.frame.business.examineStage.model.Examinestage"
+		resultClass="java.util.HashMap">
+		select k.filepath,
+		       k2.examineid,
+		       cod.name AS stage,
+		       k2.documentname,
+		       k2.dnumber,
+		       to_char(k2.replytime, 'yyyy-mm-dd') as replytime,
+		       k2.replymoney,
+		       k2.remark
+  		  from (select t.examineid,
+  		  			   c2.filepath
+				  from examine t,
+				       (select p.examineid, max(p.addtime) as addtime
+				          from examineattachment p
+				         group by p.examineid) c,
+				       examineattachment c2
+		         where t.projectid = #projectid#
+				       and c.examineid = c2.examineid
+				       and c.addtime = c2.addtime
+				       and t.examineid = c2.examineid) k,
+			   CODE_ALL cod,
+       		   examine k2
+ 		 where k2.examineid = k.examineid(+)
+		       and k2.stage=cod.id(+)
+		       and cod.type='15'
+		   	and k2.projectid = #projectid#
+		order by $sidx$ $sord$
+	</select>
+
+	<!-- 查询审批阶段总数 -->
+	<select id="queryExaminestageCount" parameterClass="com.frame.business.examineStage.model.Examinestage"
+		resultClass="int">
+		select count(1) from examine t
+		where projectid=#projectid#
+	</select>
+
+	<!--查询审批阶段详情 -->
+	<select id="queryExaminestageDetail" parameterClass="java.util.HashMap"
+		resultClass="com.frame.business.examineStage.model.Examinestage">
+        <![CDATA[
+      	select examineid,  stage,
+		t.documentname,
+		t.dnumber,
+		to_char(t.replytime,
+		'yyyy-mm-dd') as replytime,
+		t.replymoney,
+		t.remark
+		from examine t
+       	where t.examineid=#id#  
+  		]]>
+	</select>
+
+	<!-- 插入审批阶段记录 -->
+	<insert id="insertExaminestage" parameterClass="com.frame.business.examineStage.model.Examinestage">
+		<![CDATA[   
+		insert into examine
+		(
+		examineid,projectid,addtime,
+		]]>
+		stage,
+		documentname,
+		dnumber,
+		replytime,
+		replymoney,
+		remark
+		)
+		values
+		(
+		#examineid#,#projectid#,sysdate,
+		#stage#,
+		#documentname#,
+		#dnumber#,
+		to_date(#replytime#,'yyyy-mm-dd'),
+		#replymoney#,
+		#remark#
+		)
+	</insert>
+
+	<!-- 修改审批阶段 -->
+	<update id="updateExaminestage" parameterClass="com.frame.business.examineStage.model.Examinestage">
+		update examine
+		set
+		stage=#stage#,
+		replytime=to_date(#replytime#,'yyyy-mm-dd'),
+		documentname=#documentname#,
+		dnumber=#dnumber#,
+		replymoney=#replymoney#,
+		remark=#remark#
+		where examineid=#examineid#
+	</update>
+
+	<!-- 删除审批 -->
+	<statement id="delExaminestage" parameterClass="java.util.HashMap">
+		DELETE FROM
+		examine T WHERE T.examineid = #id#
+	</statement>
+	
+	<!-- 删除某个审批id下 所有附件 -->
+    <statement id="delAttachmentByExamineId" parameterClass="java.util.HashMap">  
+        DELETE FROM examineattachment T WHERE T.examineid = #examineid#
+    </statement>
+    
+    <!-- 插入附件 -->
+	<insert id="insertExamineAttachment" parameterClass="java.util.HashMap">
+		<![CDATA[   
+		insert into examineattachment
+		(
+		attid,addtime
+		]]>
+		<dynamic prepend=",">
+			<isNotEmpty property="examineid" prepend=",">examineid
+			</isNotEmpty>
+			<isNotEmpty property="filepath" prepend=",">filepath
+			</isNotEmpty>
+		</dynamic>
+		)
+		values
+		(
+		#attid#,sysdate
+		<dynamic prepend=",">
+			<isNotEmpty property="examineid" prepend=",">#examineid#
+			</isNotEmpty>
+			<isNotEmpty property="filepath" prepend=",">#filepath#
+			</isNotEmpty>
+		</dynamic>
+		)
+	</insert>
+
+	<!--查询阶段附件-->
+	<select id="queryExattByExid" parameterClass="java.util.HashMap"
+		resultClass="java.util.HashMap">
+        <![CDATA[
+      	select t.attid,t.examineid,t.filepath from examineattachment t
+       	 where t.examineid=#examineid#  
+       	 order by t.addtime desc
+  		]]>
+	</select>
+	
+	<!-- 删除审批附件 -->
+    <statement id="exfileDelById" parameterClass="java.util.HashMap">  
+    	delete examineattachment t where t.attid=#ATTID#
+    </statement>
+</sqlMap>

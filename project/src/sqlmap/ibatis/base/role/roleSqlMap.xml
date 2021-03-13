@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="base_role">
+	<!-- 获得角色列表查询条件 -->
+	<sql id="sql_where" > 
+		<dynamic prepend="where">
+	        <isNotEmpty prepend="and" property="NAME"> 
+	        	A.NAME like '%$NAME$%'
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="REMARK"> 
+	        	A.REMARK like '%$REMARK$%'
+	        </isNotEmpty> 
+		</dynamic>
+	</sql>
+	
+	<!-- 获得角色列表 -->
+	<select id="getRoleList" resultClass="java.util.HashMap" parameterClass="com.frame.base.role.model.RoleInfo">
+		SELECT A.* FROM(
+			SELECT T.ID, 
+				   T.NAME, 
+				   T.REMARK, 
+				   T.ORD, 
+				   T.ADD_TIME 
+			FROM ROLE_INFO T) A
+		   <include refid="sql_where"/>
+		   ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获得角色列表总数 -->
+	<select id="getRoleListCount" resultClass="int" parameterClass="com.frame.base.role.model.RoleInfo">
+		SELECT count(1) FROM(
+			SELECT T.ID, 
+				   T.NAME, 
+				   T.REMARK, 
+				   T.ORD, 
+				   T.ADD_TIME 
+			FROM ROLE_INFO T) A
+		   <include refid="sql_where"/>
+    </select>
+    
+    <!-- 插入角色 -->
+    <statement id="insertRole" parameterClass="com.frame.base.role.model.RoleInfo">  
+        INSERT INTO ROLE_INFO (ID, NAME, REMARK, ORD, ADD_TIME) 
+        VALUES (#ID#, #NAME#, #REMARK#, #ORD#, SYSDATE)
+    </statement> 
+    
+    <!-- 修改角色 -->
+    <statement id="updateRole" parameterClass="com.frame.base.role.model.RoleInfo">  
+        UPDATE ROLE_INFO T
+		   SET T.NAME = #NAME#, 
+		   	   T.REMARK = #REMARK#, 
+		   	   T.ORD = #ORD#
+		 WHERE T.ID = #ID#
+    </statement> 
+    
+    <!-- 根据ID查询角色信息 -->
+	<select id="getRoleUserById" resultClass="com.frame.base.role.model.RoleInfo" parameterClass="java.util.HashMap">
+		SELECT T.ID, 
+			   T.NAME, 
+			   T.REMARK, 
+			   T.ORD, 
+			   T.ADD_TIME 
+		  FROM ROLE_INFO T
+		 WHERE T.ID = #ID#
+    </select>
+    
+    <!-- 删除角色-->
+    <statement id="delRole" parameterClass="java.util.HashMap">  
+        DELETE FROM ROLE_INFO T WHERE T.ID = #ID#
+    </statement>
+    
+    <!-- 根据角色删除角色权限-->
+    <statement id="delMenu2RoleByRoleId" parameterClass="java.util.HashMap">  
+        DELETE FROM ROLE_2_MENU T WHERE T.ROLE_ID = #ROLE_ID#
+    </statement>
+    
+    <!-- 插入角色权限分配 -->
+    <statement id="insertMenu2Role" parameterClass="java.util.HashMap">  
+        INSERT INTO ROLE_2_MENU (ROLE_ID, MENU_ID) 
+        VALUES (#ROLE_ID#, #MENU_ID#)
+    </statement> 
+    
+    <!-- 获得角色权限树形数据 -->
+    <select id="getMenu2RoleTreeData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT T.*,
+		       CASE
+		         WHEN T2.MENU_ID IS NULL THEN
+		          'FALSE'
+		         ELSE
+		          'TRUE'
+		       END AS CHECKED
+		  FROM MENU_INFO T,
+		       (SELECT P.*
+		          FROM ROLE_2_MENU P
+		         WHERE P.ROLE_ID = #ROLE_ID#) T2
+		 WHERE T.ID = T2.MENU_ID(+)
+		 START WITH T.PID = '0'
+		CONNECT BY PRIOR T.ID = T.PID
+		 ORDER SIBLINGS BY T.ORD
+    </select>
+</sqlMap>

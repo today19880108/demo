@@ -1,0 +1,37 @@
+.containt .border ul li button.myMultiselectClass{
+	height: 24px;
+	line-height: 24px;
+	color: #000;
+	font-weight: normal;
+	border-color: #999;
+}
+
+.containt .border ul li button.myMultiselectClass span{
+	width: auto;
+	font-size: 13px;
+	height: 16px;
+	line-height: 16px;
+}
+
+.containt .border ul li button.myMultiselectClass span.ui-icon{
+	float: right;
+	width: 15px;
+}
+
+.ui-datepicker select.ui-datepicker-month, .ui-datepicker select.ui-datepicker-year{
+	width: 44%;
+}
+
+.ui-multiselect-checkboxes label input{
+	margin-right: 2px;
+}
+
+/*zTree*/
+/*style.css中添加会影响菜单栏*/
+ul.ztree {
+	border: 1px solid #D4D4D4;
+	background: #fff;
+	overflow-y:scroll;
+	overflow-x:auto;
+}
+/*zTree*/

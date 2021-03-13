@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 公共MapSql -->
+<sqlMap namespace="Comm">
+	<!-- 获得当前日期 -->
+	<select id="nowDate" resultClass="java.lang.String">
+		SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD') AS NOWDATE FROM DUAL
+    </select>
+    <!-- 获得当前时间 -->
+    <select id="nowTime" resultClass="java.lang.String">
+		SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD HH24:MI:SS') AS NOWTIME FROM DUAL
+    </select>
+    <!-- 获得字典表数据 -->
+    <select id="getCode" resultClass="java.util.HashMap">
+		SELECT T.ID, T.NAME
+		  FROM $table_name$ T 
+	  ORDER BY T.ORD
+    </select>
+    <!-- 获得字典表数据 -->
+    <select id="getCodeInAllTable" resultClass="java.util.HashMap">
+		SELECT T.ID, T.NAME
+		  FROM CODE_ALL T 
+		 WHERE T.TYPE = #type#
+	  ORDER BY T.ORD
+    </select>
+    <!-- 根据序列名获得序列值 -->
+    <select id="getSeqVal" resultClass="int">
+		SELECT $seqStr$.NEXTVAL FROM DUAL 
+    </select>
+    <!-- 获得树形数据 -->
+    <!-- 因为在Select中使用了*匹配符，所以查询的列会随着表名的不同而发生变化 -->
+    <!-- remapResults="true"表示每次重新映射列名 -->
+    <select id="getTreeData" resultClass="java.util.HashMap" remapResults="true">
+		SELECT T.*
+		  FROM $table_name$ T
+		 START WITH T.PID = '0'
+	   CONNECT BY PRIOR T.ID = T.PID
+		 ORDER SIBLINGS BY T.ORD
+    </select>
+    
+    <!-- 获得树形根节点数据 -->
+    <select id="getTreeDataOfTop" resultClass="java.util.HashMap" remapResults="true">
+		SELECT T.*
+		  FROM $table_name$ T
+		 WHERE T.PID = '0'
+		 ORDER BY T.ORD
+    </select>
+    
+    <!-- 根据父节点获得树形节点数据 -->
+    <select id="getTreeDataByPid" resultClass="java.util.HashMap" remapResults="true">
+		SELECT T.*
+		  FROM $table_name$ T
+		 WHERE T.PID = #pid#
+		 ORDER BY T.ORD
+    </select>
+</sqlMap>

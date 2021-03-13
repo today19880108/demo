@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ProjectType">
+		
+	<sql id="sql_where" > 
+   		<dynamic prepend="where">
+   			<isNotEmpty prepend="and" property="id"> 
+            	id = #id#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="pid"> 
+            	pid = #pid#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="ord"> 
+            	ord = #ord#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="name"> 
+            	name like '%$name$%'
+            </isNotEmpty>  
+   		</dynamic>
+	</sql>
+    
+    <!-- 新增项目类别 -->
+    <statement id="insertProjecttype" parameterClass="com.frame.base.projecttype.model.ProjectType">  
+        insert into  projecttype t
+		  (id, pid, name, remark, ord)
+		VALUES
+		  (#id#, #pid#, #name#,  #remark#, #ord#)
+    </statement>
+	
+	<!-- 保存项目类别修改 -->
+    <statement id="updateProjecttype" parameterClass="com.frame.base.projecttype.model.ProjectType">  
+    	UPDATE projecttype t
+		   SET name = #name#,
+               remark = #remark#,
+               pid = #pid#,
+               ord = #ord#
+		 WHERE id= #id#
+    </statement> 
+    
+     <!-- 删除项目类别 -->
+    <statement id="delProjecttype" parameterClass="java.util.HashMap">  
+    	delete projecttype t where t.id=#id#
+    </statement>
+    
+    <!-- 获取项目类别列表 -->
+    <select id="getProjecttypeList" resultClass="java.util.HashMap" parameterClass="com.frame.base.projecttype.model.ProjectType">
+	 	select A.* from(
+		 	select t.id, t.pid,
+			case when t.pid is not null
+			then (select a.name from projecttype a where a.id=t.pid) end as PID_NAME	
+			, t.name, t.ord, t.remark from projecttype t) A
+	    <include refid="sql_where"/>
+	    ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获取项目类别列表数量 -->
+    <select id="getProjecttypeListCount" resultClass="int" parameterClass="com.frame.base.projecttype.model.ProjectType">
+		SELECT COUNT(1) FROM(
+			 select t.id, t.pid,
+			 t.name, t.ord, t.remark from projecttype t
+		     <include refid="sql_where"/>
+		)
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    </select>
+    
+    <select id="getProjecttypeById" resultClass="com.frame.base.projecttype.model.ProjectType" parameterClass="java.util.HashMap">
+	 	select t.id, t.pid,
+		case when t.pid is not null
+		then (select a.name from projecttype a where a.id=t.pid) end as pid_name	
+		, t.name, t.ord, t.remark from projecttype t
+	    <include refid="sql_where"/>
+    </select>
+    
+</sqlMap>

@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="business">
+	<sql id="sql_where" > 
+		<isNotEmpty prepend="and" property="projectname"> 
+        	p.projectname like '%$projectname$%'
+        </isNotEmpty> 
+        <isNotEmpty prepend="and" property="planyear">
+        	','||p.planyear||',' like '%,$planyear$,%' 
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="cityleaders">
+        	p.cityleaders like '%$cityleaders$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="managementoffice">
+        	p.managementoffice=#managementoffice# 
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="responsibilityunit"> 
+        	p.responsibilityunit like '%$responsibilityunit$%' 
+        </isNotEmpty> 
+        <isNotEmpty prepend="and" property="insteadunit"> 
+        	p.insteadunit like '%$insteadunit$%' 
+        </isNotEmpty> 
+        <isNotEmpty prepend="and" property="localgoverment">
+        	','||p.localgoverment||',' like '%,$localgoverment$,%' 
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="projecttype">
+        	p.projecttype=#projecttype#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="constructionnature">
+        	p.constructionnature=#constructionnature#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="projectstage">
+        	p.projectstage=#projectstage#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="replytime_s">
+        	e.replytime>=to_date(#replytime_s#, 'yyyy-mm-dd')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="replytime_e">
+        	e.replytime&lt;=to_date(#replytime_e#, 'yyyy-mm-dd')
+        </isNotEmpty>
+	</sql>
+	
+	<!--查询项目 -->
+	<select id="queryProjectList" parameterClass="com.frame.business.project.model.project" resultClass="java.util.HashMap">
+		with tempa as
+		 (select c.projectid, max(c.stage) as st 
+		    from examine c 
+		   group by c.projectid),
+		tempb as
+		 (select tempa.projectid, tempa.st, max(e.addtime) as rt
+		    from examine e, tempa
+		   where e.projectid = tempa.projectid
+		     and e.stage = tempa.st
+		   group by tempa.projectid, tempa.st),
+		tempc as
+		 (select e.projectid, e.replymoney
+		    from examine e, tempb b
+		   where e.projectid = b.projectid
+		     and e.stage = b.st
+		     and e.addtime = b.rt),
+		tempd as
+		 (select t.projectid, sum(t.actualinvest) as actualinvest 
+		    from investment t 
+	       group by t.projectid)
+		
+       	select distinct
+       	       p.projectid,
+       	       p.projectname,
+       	       p.planyear,
+       		   p.cityleaders,
+       		   p.managementoffice,
+		       (SELECT T.NAME FROM CODE_ALL T WHERE T.TYPE='8' AND T.ID=MANAGEMENTOFFICE) AS MANAGEMENTOFFICE_NAME,
+		       p.responsibilityunit,
+		       p.insteadunit,
+		       p.localgoverment,
+		       p.projecttype,
+		       (SELECT T.NAME FROM projecttype T WHERE T.ID=PROJECTTYPE) AS PROJECTTYPE_NAME,
+		       p.constructionnature,
+		       (SELECT T.NAME FROM CODE_ALL T WHERE T.TYPE='4' AND T.ID=CONSTRUCTIONNATURE) AS CONSTRUCTIONNATURE_NAME,
+		       p.projectstage,
+		       (SELECT T.NAME FROM CODE_ALL T WHERE T.TYPE='7' AND T.ID=PROJECTSTAGE) AS PROJECTSTAGE_NAME,
+		       to_char(p.starttime, 'yyyy-mm-dd') as starttime,
+		       to_char(p.endtime, 'yyyy-mm-dd') as endtime,
+		       p.constructioncontent,
+		       (select tempc.replymoney from tempc where tempc.projectid=p.projectid) as totalinvestment,
+		       (select tempd.actualinvest from tempd where tempd.projectid=p.projectid) as actualinvest,
+		       p.remark,
+           	   case when instr(','||p.planyear||',',','||to_char(sysdate,'yyyy')||',')>0 then 0 
+                 else 1 end as ordFlag
+		  from project p, examine e
+		 where p.projectid = e.projectid(+)
+     	 <include refid="sql_where"/>
+     	 order by $sidx$ $sord$
+	</select>
+	
+	<!-- 查询项目总数 -->
+	<select id="queryProjectCount" parameterClass="com.frame.business.project.model.project" resultClass="int">
+    	select count(1) 
+	      from (select distinct p.projectid 
+		    	  from project p, examine e
+		    	 where p.projectid = e.projectid(+)
+		     	 <include refid="sql_where"/>)
+	</select>
+	
+	<!--查询项目详情 -->
+	<select id="queryProjectDetail" parameterClass="java.util.HashMap"
+		resultClass="com.frame.business.project.model.project">
+  		with tempa as
+		 (select c.projectid, max(c.stage) as st 
+		    from examine c 
+		   group by c.projectid
+		  having c.projectid = #projectid#),
+		tempb as
+		 (select tempa.projectid, tempa.st, max(e.addtime) as rt
+		    from examine e, tempa
+		   where e.projectid = tempa.projectid
+		     and e.stage = tempa.st
+		   group by tempa.projectid, tempa.st),
+		tempc as
+		 (select e.projectid, e.replymoney
+		    from examine e, tempb b
+		   where e.projectid = b.projectid
+		     and e.stage = b.st
+		     and e.addtime = b.rt),
+		tempd as
+		 (select t.projectid, sum(t.actualinvest) as actualinvest 
+		    from investment t 
+		   group by t.projectid
+		  having t.projectid = #projectid#)
+		
+       	select p.projectid,
+       	       p.projectname,
+       	       p.planyear,
+       		   p.cityleaders,
+       		   p.managementoffice,
+		       p.responsibilityunit,
+		       p.insteadunit,
+		       p.localgoverment,
+		       p.projecttype,
+		       (SELECT T.NAME FROM projecttype T WHERE T.ID=PROJECTTYPE) AS PROJECTTYPE_NAME,
+		       p.constructionnature,
+		       p.projectstage,
+		       to_char(p.starttime, 'yyyy-mm-dd') as starttime,
+		       to_char(p.endtime, 'yyyy-mm-dd') as endtime,
+		       p.constructioncontent,
+		       (select tempc.replymoney from tempc where tempc.projectid=p.projectid) as totalinvestment,
+		       (select tempd.actualinvest from tempd where tempd.projectid=p.projectid) as actualinvest,
+		       p.remark
+		  from project p
+     	 where p.projectid=#projectid#
+	</select>
+	
+	<!--查询投资信息列表 -->
+	<select id="queryInvestByProjectId" parameterClass="com.frame.business.project.model.Investment"
+		resultClass="java.util.HashMap">
+		with tempa as
+		 (select c.projectid, max(c.stage) as st 
+		    from examine c 
+		   group by c.projectid
+		  having c.projectid = #projectid#),
+		tempb as
+		 (select tempa.projectid, tempa.st, max(e.addtime) as rt
+		    from examine e, tempa
+		   where e.projectid = tempa.projectid
+		     and e.stage = tempa.st
+		   group by tempa.projectid, tempa.st),
+		tempc as
+		 (select e.projectid, e.replymoney
+		    from examine e, tempb b
+		   where e.projectid = b.projectid
+		     and e.stage = b.st
+		     and e.addtime = b.rt),
+		tempd as
+         (select t.investmentid,
+        	     t.projectid, 
+        	     t.referencename,
+                 t.referencecode,
+        	     to_char(t.investmenttime, 'yyyy-mm-dd') as investmenttime,
+        	     t.funding,
+        	     (SELECT T.NAME FROM CODE_ALL T WHERE T.TYPE='5' AND T.ID=FUNDING) AS FUNDING_NAME,
+        	     t.actualinvest,
+                 case when tempc.replymoney is null then 0
+               	 	else nvl(t.actualinvest/tempc.replymoney*100,0)
+               	 end as scalecount_temp,          
+               	 t.remarks,
+               	 k.filepath
+          from investment t, tempc,
+               (select t.investmentid,
+                       c2.filepath
+				  from investment t,
+				       (select p.investmentid, max(p.addtime) as addtime
+				          from investmentattachment p
+				         group by p.investmentid) c,
+				       investmentattachment c2
+		         where t.projectid = #projectid#
+				       and c.investmentid = c2.investmentid
+				       and c.addtime = c2.addtime
+				       and t.investmentid = c2.investmentid) k
+  		 where t.projectid = tempc.projectid(+)
+  		   and t.investmentid = k.investmentid(+)
+  		   and t.projectid=#projectid#)
+  		   
+  		select tempd.*,
+  		       to_char(tempd.scalecount_temp,'fm999999999990.00')||'%' as scalecount ,
+  		       to_char(sum(tempd.scalecount_temp) over (order by $sidx$ $sord$ rows between unbounded preceding and current row),'fm999999999990.00')||'%' as totalscalecount 
+  		  from tempd
+		 order by $sidx$ $sord$
+	</select>
+   
+   <!-- 查询项目总数 -->
+	<select id="queryInvestCount" parameterClass="com.frame.business.project.model.Investment"
+		resultClass="int">
+       select count(1)   
+         from investment  t
+  	    where projectid=#projectid#
+	</select>
+   
+   <!--查询投资信息 -->
+	<select id="queryInvestDetail" parameterClass="java.util.HashMap"
+		resultClass="com.frame.business.project.model.Investment">
+       select t.investmentid,
+              t.projectid,
+              to_char(t.investmenttime, 'yyyy-mm-dd') as investmenttime,
+              t.funding,
+              (SELECT T.NAME FROM CODE_ALL T WHERE T.TYPE='5' AND T.ID=FUNDING) AS FUNDING_NAME,
+              t.actualinvest,
+        	  t.referencename,
+        	  t.referencecode,
+        	  t.remarks
+       from investment t
+       where t.investmentid=#investmentid#  
+	</select> 
+   
+	<!-- 插入项目记录 -->
+	<insert id="insertNewProject" parameterClass="java.util.HashMap">
+		<![CDATA[   
+		insert into project
+		(
+		projectid,addtime
+		]]>
+		<dynamic prepend=",">
+			<isNotEmpty property="responsibilityunit" prepend=",">responsibilityunit
+			</isNotEmpty>
+			<isNotEmpty property="localgoverment" prepend=",">localgoverment
+			</isNotEmpty>
+			<isNotEmpty property="constructionnature" prepend=",">constructionnature
+			</isNotEmpty>
+			<isNotEmpty property="starttime" prepend=",">starttime
+			</isNotEmpty>
+			<isNotEmpty property="projecttype" prepend=",">projecttype
+			</isNotEmpty>
+			<isNotEmpty property="constructioncontent" prepend=",">constructioncontent
+			</isNotEmpty>
+			<isNotEmpty property="cityleaders" prepend=",">cityleaders
+			</isNotEmpty>
+			<isNotEmpty property="projectname" prepend=",">projectname
+			</isNotEmpty>
+			<isNotEmpty property="planyear" prepend=",">planyear
+			</isNotEmpty>
+			<isNotEmpty property="insteadunit" prepend=",">insteadunit
+			</isNotEmpty>
+			<isNotEmpty property="managementoffice" prepend=",">managementoffice
+			</isNotEmpty>
+			<isNotEmpty property="endtime" prepend=",">endtime
+			</isNotEmpty>
+			<isNotEmpty property="remark" prepend=",">remark
+			</isNotEmpty>
+			<isNotEmpty property="projectstage" prepend=",">projectstage
+			</isNotEmpty>
+		</dynamic>
+		)
+		values
+		(
+		#projectid#,sysdate
+		<dynamic prepend=",">
+			<isNotEmpty property="responsibilityunit" prepend=",">#responsibilityunit#
+			</isNotEmpty>
+			<isNotEmpty property="localgoverment" prepend=",">#localgoverment#
+			</isNotEmpty>
+			<isNotEmpty property="constructionnature" prepend=",">#constructionnature#
+			</isNotEmpty>
+			<isNotEmpty property="starttime" prepend=",">to_date(#starttime#, 'yyyy-mm-dd')
+			</isNotEmpty>
+			<isNotEmpty property="projecttype" prepend=",">#projecttype#
+			</isNotEmpty>
+			<isNotEmpty property="constructioncontent" prepend=",">#constructioncontent#
+			</isNotEmpty>
+			<isNotEmpty property="cityleaders" prepend=",">#cityleaders#
+			</isNotEmpty>
+			<isNotEmpty property="projectname" prepend=",">#projectname#
+			</isNotEmpty>
+			<isNotEmpty property="planyear" prepend=",">#planyear#
+			</isNotEmpty>
+			<isNotEmpty property="insteadunit" prepend=",">#insteadunit#
+			</isNotEmpty>
+			<isNotEmpty property="managementoffice" prepend=",">#managementoffice#
+			</isNotEmpty>
+			<isNotEmpty property="endtime" prepend=",">to_date(#endtime#, 'yyyy-mm-dd')
+			</isNotEmpty>
+			<isNotEmpty property="remark" prepend=",">#remark#
+			</isNotEmpty>
+			<isNotEmpty property="projectstage" prepend=",">#projectstage#
+			</isNotEmpty>
+		</dynamic>
+		)
+	</insert>
+   
+   <!-- 插入投资记录 -->
+	<insert id="insertInvestment" parameterClass="java.util.HashMap">
+		<![CDATA[   
+		insert into investment
+		(
+		investmentid,addtime
+		]]>
+		<dynamic prepend=",">
+			<isNotEmpty property="projectid" prepend=",">projectid
+			</isNotEmpty>
+			<isNotEmpty property="investmenttime" prepend=",">investmenttime
+			</isNotEmpty>
+			<isNotEmpty property="funding" prepend=",">funding
+			</isNotEmpty>
+			<isNotEmpty property="actualinvest" prepend=",">actualinvest
+			</isNotEmpty>
+			<isNotEmpty property="referencename" prepend=",">referencename
+			</isNotEmpty>
+			<isNotEmpty property="referencecode" prepend=",">referencecode
+			</isNotEmpty>
+			<isNotEmpty property="remarks" prepend=",">remarks
+			</isNotEmpty>
+		</dynamic>
+		)
+		values
+		(
+		#investmentid#,sysdate
+		<dynamic prepend=",">
+			<isNotEmpty property="projectid" prepend=",">#projectid#
+			</isNotEmpty>
+			<isNotEmpty property="investmenttime" prepend=",">to_date(#investmenttime#,'yyyy-mm-dd')
+			</isNotEmpty>
+			<isNotEmpty property="funding" prepend=",">#funding#
+			</isNotEmpty>
+			<isNotEmpty property="actualinvest" prepend=",">#actualinvest#
+			</isNotEmpty>
+			<isNotEmpty property="referencename" prepend=",">#referencename#
+			</isNotEmpty>
+			<isNotEmpty property="referencecode" prepend=",">#referencecode#
+			</isNotEmpty>
+			<isNotEmpty property="remarks" prepend=",">#remarks#
+			</isNotEmpty>
+		</dynamic>
+		)
+	</insert>
+   
+    <!-- 插入附件 -->
+	<insert id="insertAttachment" parameterClass="java.util.HashMap">
+		<![CDATA[   
+		insert into attachment
+		(
+		attachmentid,addtime
+		]]>
+		<dynamic prepend=",">
+			<isNotEmpty property="projectid" prepend=",">projectid
+			</isNotEmpty>
+			<isNotEmpty property="filepath" prepend=",">filepath
+			</isNotEmpty>
+		</dynamic>
+		)
+		values
+		(
+		#attachmentid#,sysdate
+		<dynamic prepend=",">
+			<isNotEmpty property="projectid" prepend=",">#projectid#
+			</isNotEmpty>
+			<isNotEmpty property="filepath" prepend=",">#filepath#
+			</isNotEmpty>
+		</dynamic>
+		)
+	</insert>
+	
+	<!-- 修改项目 -->
+    <update id="updateProject" parameterClass="java.util.HashMap">
+		update project set 
+            	projectname=#projectname#,
+            	responsibilityunit=#responsibilityunit#,
+            	localgoverment=#localgoverment#,
+            	cityleaders=#cityleaders#,
+            	constructionnature=#constructionnature#,
+            	projecttype=#projecttype#,
+            	starttime=to_date(#starttime#,'yyyy-mm-dd'),
+            	constructioncontent=#constructioncontent#,
+            	planyear=#planyear#,
+            	insteadunit=#insteadunit#,
+            	managementoffice=#managementoffice#,
+            	endtime=to_date(#endtime#,'yyyy-mm-dd'),
+            	actualinvest=#actualinvest#,
+            	remark=#remark#,
+            	projectstage=#projectstage#
+      where projectid=#projectid#
+	</update>
+     
+    <!-- 修改投资信息 -->
+    <update id="updateVestment" parameterClass="java.util.HashMap">
+		update investment set 
+			   investmenttime=to_date(#investmenttime#,'yyyy-mm-dd'),
+			   funding=#funding#,
+			   actualinvest=#actualinvest#,
+			   referencename=#referencename#,
+			   referencecode=#referencecode#,
+			   remarks=#remarks#
+         where investmentid=#investmentid#
+	</update>
+
+	<!-- 删除项目 -->
+    <statement id="delProject" parameterClass="java.util.HashMap">  
+        DELETE FROM project T WHERE T.projectid = #projectid#
+    </statement> 
+    
+	<!-- 删除投资 -->
+    <statement id="delInvest" parameterClass="java.util.HashMap">  
+        DELETE FROM investment T WHERE T.investmentid = #investmentid#
+    </statement> 
+    
+    <!-- 删除项目附件 -->
+    <statement id="delAttachmentByProjectId" parameterClass="java.util.HashMap">  
+        DELETE FROM attachment T WHERE T.projectid = #projectid#
+    </statement>
+    
+    <!-- 导入项目 -->
+    <insert id="insertFileImport" parameterClass="java.util.Map">
+		insert into project(projectid,responsibilityunit,localgoverment,constructionnature,starttime,projecttype,constructioncontent,cityleaders,projectname,addtime,
+			planyear, insteadunit, managementoffice, endtime, actualinvest, remark, projectstage)
+		<iterate property="allList" conjunction="union all" >
+		select #allList[].projectid#,#allList[].responsibilityunit#,#allList[].localgoverment#,#allList[].constructionnature#,to_date(#allList[].starttime#,'yyyy-mm-dd'),#allList[].projecttype#,#allList[].constructioncontent#,#allList[].cityleaders#,#allList[].projectname#,sysdate,
+			#allList[].planyear#, #allList[].insteadunit#, #allList[].managementoffice#, 
+			to_date(#allList[].endtime#,'yyyy-mm-dd'), #allList[].actualinvest#, #allList[].remark#, #allList[].projectstage# from dual
+		</iterate>
+	</insert>
+	
+	<!-- 删除投资附件 -->
+    <statement id="delAttachmentByInvestmentId" parameterClass="java.util.HashMap">  
+        DELETE FROM INVESTMENTATTACHMENT T WHERE T.investmentid = #investmentid#
+    </statement>
+    
+    <!-- 插入投资附件 -->
+	<insert id="insertInvestmentAttachment" parameterClass="java.util.HashMap">
+		<![CDATA[   
+		insert into investmentattachment
+		(
+		attachmentid,addtime
+		]]>
+		<dynamic prepend=",">
+			<isNotEmpty property="investmentid" prepend=",">investmentid
+			</isNotEmpty>
+			<isNotEmpty property="filepath" prepend=",">filepath
+			</isNotEmpty>
+		</dynamic>
+		)
+		values
+		(
+		#attachmentid#,sysdate
+		<dynamic prepend=",">
+			<isNotEmpty property="investmentid" prepend=",">#investmentid#
+			</isNotEmpty>
+			<isNotEmpty property="filepath" prepend=",">#filepath#
+			</isNotEmpty>
+		</dynamic>
+		)
+	</insert>
+	
+	<!--查询投资附件列表-->
+	<select id="getAttchListByInid" parameterClass="java.util.HashMap"
+		resultClass="java.util.HashMap">
+      	select t.attachmentid,
+      		   t.investmentid,
+      		   t.filepath
+          from investmentattachment t
+       	 where t.investmentid=#investmentid#  
+       	 order by t.addtime desc
+	</select>
+	
+	<!-- 删除投资附件 -->
+    <statement id="infileDelById" parameterClass="java.util.HashMap">  
+    	delete investmentattachment t where t.attachmentid=#ATTACHMENTID#
+    </statement>
+</sqlMap>

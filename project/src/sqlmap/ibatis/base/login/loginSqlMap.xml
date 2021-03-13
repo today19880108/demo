@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="base_login">
+    <!-- 获得角色权限树形数据 -->
+    <select id="getSysMenuTreeData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT T.*,
+		       CASE
+		         WHEN T2.MENU_ID IS NULL THEN
+		          'FALSE'
+		         ELSE
+		          'TRUE'
+		       END AS CHECKED
+		  FROM MENU_INFO T,
+		       (SELECT P.MENU_ID
+		          FROM ROLE_2_MENU P, USER_2_ROLE P2
+		         WHERE P.ROLE_ID = P2.ROLE_ID 
+		           AND P2.USER_ID = #USER_ID#) T2
+		 WHERE T.ID = T2.MENU_ID
+		 START WITH T.PID = '0'
+		CONNECT BY PRIOR T.ID = T.PID
+		 ORDER SIBLINGS BY T.ORD
+    </select>
+    
+    <!-- 根据ID获得用户对象 -->
+	<select id="getUserByLoginId" resultClass="com.frame.base.user.model.UserInfo" parameterClass="java.util.HashMap">
+		SELECT T.USER_ID,
+		       T.USER_NAME,
+		       T.USER_LOGIN,
+		       T.USER_PWD,
+		       T.DEPT,
+		       A.NAME AS DEPT_NAME,
+		       T.USER_CODE,
+		       T.SEX,
+		       T.AGE,
+		       T.TEL,
+		       T.EMAIL,
+		       T.REMARK,
+		       T.SHOW_ORDER,
+		       T.ISUSER
+		  FROM USER_INFO T,
+		  	   USER_DEPT A
+		 WHERE T.DEPT = A.ID(+)
+		   AND T.ISUSER = '0'
+		   AND T.USER_LOGIN = #USER_LOGIN#
+	</select>
+	
+	<!-- 保存密码修改 -->
+    <statement id="saveUserAddUdp" parameterClass="java.util.HashMap">  
+        UPDATE USER_INFO T
+		   SET T.USER_PWD = #USER_PWD#
+		 WHERE T.USER_ID = #USER_ID#
+    </statement> 
+</sqlMap>

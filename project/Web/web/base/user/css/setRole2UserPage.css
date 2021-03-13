@@ -1,0 +1,11 @@
+.addtop{
+	margin-top: 5px;
+}
+
+ul.ztree{
+	border: none;
+}
+
+.ui-button-text-icon-primary .ui-button-text{
+	padding-top: 0.25em; 
+}

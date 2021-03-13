@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+encoding//Web/web/comm/css/style.css=UTF-8
+encoding//Web/web/comm/jsp/includeCommon.jsp=UTF-8
+encoding//Web/web/comm/jsp/includeDatetimepicker.jsp=UTF-8
+encoding//Web/web/comm/jsp/includeEasyui.jsp=UTF-8
+encoding//Web/web/comm/jsp/includeJqGrid.jsp=UTF-8
+encoding//Web/web/comm/jsp/includeJquery.jsp=UTF-8
+encoding//Web/web/comm/jsp/includeZtree.jsp=UTF-8
+encoding//src/config/log4j.properties=UTF-8
+encoding//src/config/spring/dbInfo.properties=UTF-8
+encoding/<project>=UTF-8

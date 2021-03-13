@@ -1,0 +1,104 @@
+body{
+	background-image: url('../image/login_bg.jpg');
+	background-repeat: no-repeat;
+    background-position: top left;
+	position: absolute;
+	bottom: 0;
+    left: 0;   
+    right: 0;
+    top: 0;
+}
+.login_body{
+	width: 100%;
+	position: absolute;
+    top: 27%;	
+}
+div.center{
+	width: 900px;
+	height: 225px;
+	margin: 0px auto;
+	background-image: url('../image/login_input.png');
+	background-repeat: no-repeat;
+}
+div.center .right{
+    float: right;
+    height: 180px;
+    padding: 35px 45px 0 25px;
+    width: 300px;
+    border: 1px solid #FFFFFF;
+    border-radius: 5px;
+    behavior: url(border-radius.htc);
+}
+div.center .right ul{
+	list-style: none;
+}
+div.center .right ul li {
+    float: left;
+    font-size: 16px;
+    line-height: 24px;
+    margin: 10px;
+}
+div.center .right ul li .name{
+	float: left;
+	width: 80px;
+	font-weight: 500;
+	text-align: right;
+	color: #666;
+}
+div.center .right ul li input{
+	float: left;
+	width: 190px;
+	padding: 3px;
+	height: 17px;
+	line-height: 17px;
+	border: solid 1px #999;
+	border-radius: 3px;
+}
+div.center .right ul li .error{
+	border: solid 1px red;
+}
+div.center .right ul li .focus{
+	border: solid 1px #0073EA;
+}
+div.center .right ul li .errorInfo{
+	float: left;
+	width: 100%;
+	height: 20px;
+	color: red;
+	font-size: 13px;
+	margin: 5px 0 0 80px
+}
+div.center .right div.but{
+	float: left;
+	margin-left: 80px;
+}
+div.center .right div.but button{
+	float: left;
+	width: 81px;
+}
+div.center .right div.but button.login{
+	margin-right: 30px;
+}
+
+.login_body_head{
+	width: 100%;
+	position: absolute;
+    top: 0;	
+}
+
+.login_body_head .body_head_right{
+	float: right;
+	width: 99.5%;
+	height: 130px;
+	background-image: url('../image/login_bg_head_bg.png');
+	background-repeat: repeat-x;
+}
+
+.body_head_right_main{
+	width: 500px;
+	height: 100%;
+	background-image: url('../image/login_bg_head.png');
+	background-repeat: no-repeat;
+}
+
+

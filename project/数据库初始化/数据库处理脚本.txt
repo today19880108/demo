@@ -1,0 +1,30 @@
+--表空间查询
+select * from dba_data_files
+
+--创建表空间
+create tablespace project datafile 'E:\ORACLEDATA\ORCL\project.DBF' size 512m autoextend on next 100m maxsize 3072m;
+
+--创建用户
+create user project
+   identified by "aa123456"
+  default tablespace project
+  temporary tablespace TEMP
+  profile DEFAULT;
+-- Grant/Revoke role privileges 
+grant dba to project;
+-- Grant/Revoke system privileges 
+grant execute any procedure to project;
+grant select any dictionary to project;
+grant select any sequence to project;
+grant select any table to project;
+grant select any transaction to project;
+grant under any table to project;
+grant under any type to project;
+grant under any view to project;
+grant unlimited tablespace to project;
+grant update any table to project;
+
+--导入数据
+imp  project/aa123456@ORCL fromuser=project touser=project file=d:/project.dmp
+
+

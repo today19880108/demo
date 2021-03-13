@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<firtsPassword>000000</firtsPassword>
+	<!-- 文件上传位置 -->
+	<upload>
+		<avatarPath>upload</avatarPath>
+	</upload>
+	<uploadfile>
+		<!-- 项目附件上传位置 -->
+		<avatarPath>upload/file</avatarPath>
+		<!-- 投资附件上传位置 -->
+		<avatarPath3>upload/file/investment</avatarPath3>
+		<!-- 审批附件上传位置 -->
+		<examineuploadPath>upload/file/examine</examineuploadPath>
+	</uploadfile>
+	<!-- 初始密码 -->
+</configuration>

@@ -1,0 +1,107 @@
+body{
+	padding: 5px 10px;
+}
+.baseInfo{
+	font-size: 13px;
+	/*消除浮动*/
+	overflow: hidden;
+}
+.baseInfo .left{
+	float: left;
+	width: 680px;
+}
+/*.baseInfo .left ul li*/
+.baseInfo .left ul li{
+	float: left;
+    margin-bottom: 15px;
+}
+.baseInfo .left ul li.infoLi{
+	height: 23px;
+    line-height: 23px;
+    width: 340px;
+}
+.baseInfo .left ul li.infoLi_l{
+	height: 23px;
+    line-height: 23px;
+    width: 680px;
+}
+.baseInfo .left ul li.infoLi_area{
+	height: 64px;
+    line-height: 64px;
+    width: 680px;
+}
+.baseInfo .left ul li.infoLi_button{
+    width: 680px;
+    margin-bottom: 0;
+}
+/*.baseInfo .left ul li*/
+.baseInfo .left ul li span.title{
+	float: left;
+	width: 80px;
+	text-align: right;
+	margin-right: 10px;
+}
+/*.baseInfo .left ul li.infoLi input*/
+.baseInfo .left ul li input{
+	border: 1px solid #DEDEDE;
+    padding: 2px;
+}
+.baseInfo .left ul li.infoLi input{
+	height: 17px;
+    width: 200px;
+}
+.baseInfo .left ul li.infoLi_l input{
+	height: 17px;
+    width: 540px;
+}
+.baseInfo .left ul li.infoLi_area textarea{
+	border: 1px solid #DEDEDE;
+    padding: 2px;
+	height: 60px;
+    width: 540px;
+}
+.baseInfo .left ul li.infoLi_button .save{
+    margin-left: 240px;
+}
+.baseInfo .left ul li.infoLi_button .cancel{
+    margin-left: 10px;
+}
+/*.baseInfo .left ul li.infoLi input*/
+.baseInfo .left ul li.infoLi input.radio_{
+	float: left;
+	width: 15px;
+	margin: 2px 10px 0 5px;
+	vertical-align: middle;
+}
+.baseInfo .left ul li.infoLi span.radio_title{
+	float: left;
+}
+
+.baseInfo .right{
+	float: left;
+	/*消除浮动*/
+	overflow: hidden;
+}
+.baseInfo .right .avatarArea{
+	float: left;
+	width: 150px;
+	padding: 3px 0 0 70px;
+	/*消除浮动*/
+	overflow: hidden;
+}
+.baseInfo .right .avatar{
+	float: left;
+	width: 145px;
+	height: 180px;
+}
+.baseInfo .right .caption{
+	float: left;
+	width: 100%;
+	margin-top: 5px;
+	font-size: 12px;
+	line-height: 18px;
+}
+.baseInfo .right .caption a{
+	font-size: 13px;
+}
+

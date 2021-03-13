@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="base_code">
+	<!-- 获得字典列表查询条件 -->
+	<sql id="sql_where" > 
+		<dynamic prepend="where">
+	        <isNotEmpty prepend="and" property="NAME"> 
+	        	A.NAME like '%$NAME$%'
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="TYPE"> 
+	        	A.TYPE = #TYPE#
+	        </isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<!-- 获得字典列表 -->
+	<select id="getCodeList" resultClass="java.util.HashMap" parameterClass="com.frame.base.code.model.CodeInfo">
+		SELECT A.* FROM(
+			SELECT T.TYPE||','||T.ID AS CODE_ID,
+				   T.ID, 
+				   T.NAME, 
+				   T.TYPE, 
+				   T.ORD,
+				   T2.NAME AS TYPE_NAME,
+				   T2.ORD AS TYPE_ORD
+			FROM CODE_ALL T, CODE_TYPE T2
+		   WHERE T.TYPE=T2.ID) A
+		   <include refid="sql_where"/>
+		   ORDER BY A.$sidx$ $sord$
+    </select>
+    
+    <!-- 获得字典列表总数 -->
+	<select id="getCodeListCount" resultClass="int" parameterClass="com.frame.base.code.model.CodeInfo">
+		SELECT COUNT(1) FROM(
+			SELECT T.TYPE||','||T.ID AS CODE_ID,
+				   T.ID, 
+				   T.NAME, 
+				   T.TYPE, 
+				   T.ORD,
+				   T2.NAME AS TYPE_NAME,
+				   T2.ORD AS TYPE_ORG
+			FROM CODE_ALL T, CODE_TYPE T2
+		   WHERE T.TYPE=T2.ID) A
+		   <include refid="sql_where"/>
+    </select>
+    
+    <!-- 插入字典 -->
+    <statement id="insertCode" parameterClass="com.frame.base.code.model.CodeInfo">  
+        INSERT INTO CODE_ALL (ID, NAME, TYPE, ORD) 
+        VALUES (#ID#, #NAME#, #TYPE#, #ORD#)
+    </statement> 
+    
+    <!-- 修改字典 -->
+    <statement id="updateCode" parameterClass="com.frame.base.code.model.CodeInfo">  
+        UPDATE CODE_ALL T
+		   SET T.ID = #ID#, 
+		   	   T.NAME = #NAME#, 
+		   	   T.TYPE = #TYPE#, 
+		   	   T.ORD = #ORD#
+		 WHERE T.TYPE||','||T.ID = #CODE_ID#
+    </statement> 
+    
+    <!-- 根据ID查询字典信息 -->
+	<select id="getCodeById" resultClass="com.frame.base.code.model.CodeInfo" parameterClass="java.util.HashMap">
+		SELECT T.TYPE||','||T.ID AS CODE_ID,
+			   T.ID, 
+			   T.NAME, 
+			   T.TYPE, 
+			   T.ORD 
+		  FROM CODE_ALL T
+		 WHERE T.TYPE||','||T.ID = #CODE_ID#
+    </select>
+    
+    <!-- 删除字典-->
+    <statement id="delCode" parameterClass="java.util.HashMap">  
+        DELETE FROM CODE_ALL T WHERE T.TYPE||','||T.ID = #CODE_ID#
+    </statement>
+    
+    <!-- 验证字典唯一性 -->
+	<select id="searchCodeOnly" resultClass="int" parameterClass="com.frame.base.code.model.CodeInfo">
+		SELECT COUNT(1) 
+		  FROM CODE_ALL T 
+		 WHERE T.ID=#ID# 
+		   AND T.TYPE=#TYPE# 
+		 <isNotEmpty prepend="and" property="CODE_ID"> 
+    	 	T.TYPE||','||T.ID!=#CODE_ID#
+         </isNotEmpty> 
+    </select>
+    
+</sqlMap>
