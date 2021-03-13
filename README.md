@@ -2,7 +2,7 @@
 
 1、平台说明
 
-该平台是2015年个人针对某个小项目封装的一套快速开发平台，对于信息管理系统可快速开发完成；前端集成框架及插件有、jquery、jquery-easyui、jqplot、jqGrid、multiselect、ztree、fileupload、datetimepicker等，另外前端对以上框架插件做了封装以及编写一些工具类，方便前台页面使用；后台主要使用springmvc+mybatis，同时对dao层做了封装，方便使用；平台前带有基础模块和项目管理业务模块。
+该平台是2015年个人针对某个小项目封装的一套快速开发平台，对于信息管理系统可快速开发完成；前端集成框架及插件有、jquery、jquery-easyui、jqplot、jqGrid、multiselect、ztree、fileupload、datetimepicker等，另外前端对以上框架插件做了封装以及编写一些工具类，方便前台页面使用；后台主要使用springmvc+mybatis，同时对dao层做了封装，方便使用；平台带有基础模块和项目管理业务模块。
 
 2、目录说明
 
@@ -19,5 +19,5 @@ Web\web\comm                  前端公共资源及JS工具
  1）初始化数据库
  2）tomcat部署
  3）访问路径样例:http://localhost:8080/project
- 4) 测试用户名密码admin/000000
+ 4) 测试用户名密码admin/000000 ceshi001/0000
 
